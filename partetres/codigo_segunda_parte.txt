@@ -1,0 +1,367 @@
+//Asignación de pines a los componentes del circuito.
+#define A 12
+#define B 11
+#define C 10
+#define D 9
+#define E 8
+#define F 7
+#define G 6
+#define PULSADOR_INCREMENTO 4
+#define PULSADOR_DECREMENTO 2
+#define UNIDAD A4
+#define DECENA A5
+#define SWITCH 5 
+#define MOTOR 3
+#define TMP A0
+float temperatura = 0;
+int digito = 0; //Contador normal.
+int primos = 2; //Contador de los números primos.
+int incremento = 0;
+int decremento = 0;
+int int_switch = 0;
+int incremento_antes = 0;
+int decremento_antes = 0;
+int int_switch_antes = 0;
+
+void setup()//Inicialización de los pines.
+{
+  pinMode(A, OUTPUT);
+  pinMode(B, OUTPUT);
+  pinMode(C, OUTPUT);
+  pinMode(D, OUTPUT);
+  pinMode(E, OUTPUT);
+  pinMode(F, OUTPUT);
+  pinMode(G, OUTPUT);
+  
+  pinMode(MOTOR, OUTPUT);
+  pinMode(SWITCH, INPUT);
+  pinMode(PULSADOR_INCREMENTO, INPUT_PULLUP);
+  pinMode(PULSADOR_DECREMENTO, INPUT_PULLUP);
+  pinMode(UNIDAD, OUTPUT);
+  pinMode(DECENA, OUTPUT);
+  digitalWrite(UNIDAD, 0);
+  digitalWrite(DECENA, 0); 
+  int_switch_antes = digitalRead(SWITCH);
+  
+  Serial.begin(9600); 
+}
+
+void digitos(int digito)//Correspondencia de cada dígito con 
+ //el patrón de leds encendidos en el display.
+{
+  digitalWrite(A, LOW);
+  digitalWrite(B, LOW);
+  digitalWrite(C, LOW);
+  digitalWrite(D, LOW);
+  digitalWrite(E, LOW);
+  digitalWrite(F, LOW);
+  digitalWrite(G, LOW);
+  switch(digito)
+  {
+    case 0:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    }
+    case 1:
+    {
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      break;
+    }
+    case 2:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+    case 3:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+    case 4:
+    {
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+    case 5:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+    case 6:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+    case 7:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      break;
+    }
+    case 8:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+    case 9:
+    {
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    }
+  }
+}
+int presionar()//Amortiguador de los pulsadores: Evita que por la rapidez
+// de la ejecución del programa se detecte más de una pulsación por vez cuando se
+//presiona un botón.
+{
+  incremento = digitalRead(PULSADOR_INCREMENTO);
+  decremento = digitalRead(PULSADOR_DECREMENTO);
+  int_switch = digitalRead(SWITCH);
+  
+  if(incremento)
+  {
+    incremento_antes = 1;
+  }
+   if(decremento)
+  {
+    decremento_antes = 1;
+  }
+  if(incremento == 0 && incremento != incremento_antes)
+  {
+    incremento_antes = incremento;
+    return PULSADOR_INCREMENTO;
+  }
+  else if(decremento == 0 && decremento != decremento_antes)
+  {
+    decremento_antes = decremento;
+    return PULSADOR_DECREMENTO;
+  }
+  else if(int_switch == 0 && int_switch == int_switch_antes)
+  {
+    int_switch_antes = 1;
+    return 11;
+  }
+  else if(int_switch == 1 && int_switch == int_switch_antes)
+  {
+    int_switch_antes = 0;
+    return 10;
+  }
+  else
+  {
+    return 0;
+  } 
+}
+ 
+void displays(int digito,int primos)//Multiplexación de displays. Encender secuencialmente
+// los displays de manera que para el ojo humano parecen encendidos simultánemante.                                        
+{
+  digitalWrite(UNIDAD, HIGH);//Ambos displays apagados.
+  digitalWrite(DECENA, HIGH);
+  
+  if(digitalRead(SWITCH)== 0)// Dependiendo del estado del SWITCH 
+  //muestra el dígito de la decena...
+  {
+    digitos(primos/10); //...del contador de números primos...
+  }
+  else
+  {
+    digitos(digito/10); //...o del contador normal.
+  }
+  
+   
+  digitalWrite(DECENA, LOW); //solo display DECENA encendido.
+  delay(10); 
+  digitalWrite(DECENA, HIGH); //Ambos displays apagados.
+  if(digitalRead(SWITCH)==0) // Dependiendo del estado del SWITCH 
+  //muestra el dígito de la unidad...
+  {
+    digitos(primos - 10*((int)primos/10));//...del contador de números primos...
+  }
+  else
+  {
+    digitos(digito - 10*((int)digito/10)); //...o del contador normal.
+  }
+  
+  
+  digitalWrite(UNIDAD, LOW); //Solo display UNIDAD encendido.
+  digitalWrite(DECENA, HIGH);
+  delay(10);
+  
+}
+
+void refrigerar()//Controla automáticamente la velocidad del MOTOR.
+{
+  temperatura = analogRead(TMP);//Guarda el valor de la temperatura sensada por TMP.
+  if(digitalRead(SWITCH)==0)//Cuando no se está controlando el motor de manera manual
+   //entonces se activa el control automático por temperatura modificando
+   //la variable digito que es la que da el valor de velocidad a MOTOR.
+   //A mayor temperatura, mas rápido se moverá el motor.
+  {
+    if(temperatura < 100)
+    {
+      digito = 0;
+    }
+    else if(temperatura >= 100 && temperatura < 200)
+    {
+      digito = 50;
+    }
+    else if(temperatura >= 200 && temperatura < 300)
+    {
+      digito = 70;
+    }
+    else if(temperatura >= 300)
+    {
+      digito = 99;
+    }
+  } 
+}
+
+void loop()
+{
+  int pulsador_presionado = presionar();//Aloja el valor del botón que se presionó.
+  if(pulsador_presionado == PULSADOR_INCREMENTO )//Esta secuencia else if lleva
+    //la cuenta de la variable digito que se utiliza en el contador normal.
+  {
+    if(digito == 99)
+    {
+      digito = 0;
+    }
+    else
+    {
+      digito ++;
+    }
+  }
+  else if(pulsador_presionado == PULSADOR_DECREMENTO)
+  {
+    if(digito == 0)
+    {
+      digito = 99;
+    }
+    else
+    {
+      digito --;
+    }
+  }
+  else if(pulsador_presionado == 10)
+  {
+    digito = 0;
+    
+  }
+  
+  if(pulsador_presionado == PULSADOR_INCREMENTO )//Esta secuencia else if lleva
+    //la cuenta de la variable primos que se utiliza en el contador de números primos.
+  {
+    if(primos == 97)
+    {
+      primos = 2;
+    }
+    else
+    {
+      while(true)//Determina el siguiente número primo. Cuando lo encuentra sale del while.
+      {
+        int contador_primos = 0;//Contador de divisores naturales. 
+        primos ++;
+        for(int i=1;i<primos;i++)//Busca divisores naturales del valor en la variable primos. 
+          //Si solo hay uno(el 1), el número es primo. Si hay más de uno, no lo es.
+          //Solo debe encontrar uno porque i llega hasta una iteración antes de valer lo
+          //mismo que primos (i<primos). Por lo que el segundo divisor natural (el mismo)
+          //se excluye.
+        {
+          if(primos % i == 0)
+          {
+            contador_primos ++;
+          }
+          if(contador_primos > 1)//Si durante la iteración encuentra más de un divisor natural
+            //sale del for porque ya se comprueba que no es primo.
+          {
+            break;
+          }  
+        }
+        if(contador_primos < 2)//Si el número es primo sale del while, 
+          //sino prueba con el siguiente.
+        {
+          break;
+        }
+      }
+    }
+  }
+  else if(pulsador_presionado == PULSADOR_DECREMENTO)
+  {
+    if(primos == 2)
+    {
+      primos = 97;
+    }
+    else
+    {
+      while(true)//Lo mismo que para el incremento pero en este caso para el decremento.
+      {
+        int contador_primos = 0;
+        primos --;
+        for(int i=1;i<primos;i++)
+        {
+          if(primos % i == 0)
+          {
+            contador_primos ++;
+          }
+          if(contador_primos > 1)
+          {
+            break;
+          }  
+        }
+        if(contador_primos < 2)
+        {
+          break;
+        }
+      }
+    }
+  }
+  else if(pulsador_presionado == 11)
+  {
+    primos = 2; 
+  }
+  
+  displays(digito,primos); //Llamada a la funcion displays.
+  analogWrite(MOTOR,digito); //Control de velocidad del motor con la variable digito.
+  refrigerar();//Llamada a la función refrigerar.
+  
+  Serial.print(digito);
+}
