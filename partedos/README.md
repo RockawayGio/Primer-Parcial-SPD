@@ -1,0 +1,9 @@
+# Integrantes
+Maximiliano Torrez, German Ortega.
+# Descripción
+Trabajando sobre la Parte I, se sustituyó el pulsador que funcionaba para resetear la cuenta por un switch. Ahora se llevan dos contadores simultaneamente: el de la Parte I que cuenta de 0 a 99 de a una unidad, y un nuevo contador de 0 a 99 pero de números primos. Cuando el switch está en HIGH se muestra en los displays el contador normal. Cuando el switch está en LOW se muestra en los displays el contador de números primos. Los dos pulsadores que quedaron de la parte uno controlan el incremento y decremento de ambos contadores. El switch también suple la funcion de reset del pulsador que sustituye.
+Además se agregaron otros dos componentes:
+Motor de cc: Transforma la energía eléctrica en mecánica, girando a una velocidad modificable. Se conectó su extremo negativo a GND y el positivo al pin análogico 3 configurado como output. La velocidad del motor se corresponde con el valor de la variable "dígito", que lleva la cuenta del contador de 0 a 99 de a una unidad, y aumenta conforme este valor es mayor (el motor no gira cuando digito = 0). Se controla de dos maneras: 
+La forma "manual", cuando el switch  está en HIGH y el usuario incrementa o disminuye el valor utilizando los pulsadores de incremento y decremento. O la forma "automática" en integración con el segundo componente agregado: El Sensor de temperatura. Mediante este sensor se obtiene una lectura de un rango de temperatura que se utiliza para modificar la variable dígito, que controla la velocidad del motor, cuando el SWITCH está en LOW y por ende la variable dígito no se está controlando con los pulsadores. A mayor temperatura resgistrada, mayor valor asignado a "digito", y por lo tanto el motor girará más rápido.
+# Link al proyecto
+https://www.tinkercad.com/things/5WSfxqkUGxs
